@@ -3,9 +3,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { usePlogGlobal } from '..'
 import { ArrowPath, ChevronLeft, ChevronRight } from '@/components/HeroIcons'
 import Link from 'next/link'
-import BLOG from '@/blog.config'
+import { siteConfig } from '@/lib/config'
 import LazyImage from '@/components/LazyImage'
-import TagItem from './ModalTags'
+import { compressImage } from '@/lib/notion/mapImage'
 
 /**
  * 弹出框
@@ -14,7 +14,7 @@ export default function Modal(props) {
   const { showModal, setShowModal, modalContent, setModalContent } = usePlogGlobal()
   const { siteInfo, posts } = props
   const cancelButtonRef = useRef(null)
-  const img = modalContent?.pageCover || siteInfo?.pageCover
+  const img = compressImage(modalContent?.pageCover || siteInfo?.pageCover, 1200, 85, 'webp')
   const imgRef = useRef(null)
 
   // 添加loading状态
@@ -41,8 +41,6 @@ export default function Modal(props) {
       setModalContent(posts[index - 1])
     }
   }
-
-
   // 下一个
   const next = () => {
     setLoading(true)
@@ -83,48 +81,37 @@ export default function Modal(props) {
                         >
                             <Dialog.Panel className="relative transform overflow-hidden rounded-xl text-left shadow-xl transition-all ">
                                 {/* 添加loading状态 */}
-                                {/* test */}
-                                <div className={`bg-hexo-black-gray w-32 h-32 flex justify-center items-center ${loading ? '' : 'hidden'}`}>                         
+                                <div className={`bg-hexo-black-gray w-32 h-32 flex justify-center items-center ${loading ? '' : 'hidden'}`}>
                                     <ArrowPath className='w-10 h-10 animate-spin text-gray-200' />
                                 </div>
+
                                 {/* 添加onLoad事件处理函数 */}
                                 <LazyImage onLoad={handleImageLoad} src={img} ref={imgRef} style={{ display: loading ? 'none' : 'block' }} className={`w-full max-w-7xl max-h-[90vh] shadow-xl ${!loading ? ' animate__animated animate__fadeIn' : ''}`} />
+
                                 {!loading && (<>
                                     <div className='absolute bottom-0 left-0 m-4 z-20'>
                                         <div className='flex'>
                                             <h2 style={{ textShadow: '0.1em 0.1em 0.2em black' }} className='text-2xl md:text-5xl text-white mb-4 px-2 py-1 rounded-lg'>{modalContent?.title}</h2>
                                         </div>
-                                       
-                                        <Link href={`${BLOG.SUB_PATH}/${modalContent.slug}`}>
+
+                                        <Link href={`${siteConfig('SUB_PATH', '')}/${modalContent.slug}`}>
                                             <div style={{ textShadow: '0.1em 0.1em 0.2em black' }} className={'line-clamp-3 md:line-clamp-none overflow-hidden cursor-pointer text-gray-50 rounded-lg m-2'}>
                                                 {modalContent?.summary}
                                             </div>
                                         </Link>
-                                        {/* 分类 */}
-                                        {/* {modalContent?.category && (
+
+                                        {modalContent?.category && (
                                             <div className='flex'>
                                                 <Link href={`/category/${modalContent?.category}`} className='text-xs rounded-lg mt-3 px-2 py-1 bg-black bg-opacity-20 text-white hover:bg-blue-700 hover:text-white duration-200'>
-                                                    {modalContent?.category}                                                
+                                                    {modalContent?.category}
                                                 </Link>
                                             </div>
-                                        )} */}
-                                       {/* 标签语义 */}
-                                       {modalContent?.tags && (
-                                          <div className="flex flex-nowrap max-w-full overflow-x-auto article-tags">
-                                          {modalContent?.tags.map(tag => (
-                                            <TagItem key={tag} tag={tag} />
-                                          ))}
-                                          </div>
-                                        )}    
+                                        )}
                                     </div>
                                     <div className='z-10 absolute hover:opacity-50 opacity-0 duration-200 transition-opacity w-full top-0 left-0 px-4 h-full items-center flex justify-between'>
-                                    <Link class="box" href={`${BLOG.SUB_PATH}/${modalContent.slug}`}><div class="box"></div></Link>
-                                        <div class="inbox_pos left" onClick={prev}><ChevronLeft className='cursor-pointer w-24 h-32 hover:opacity-100 stroke-white stroke-1 scale-y-150' /></div>
-                                        <div class="inbox_pos right" onClick={next}><ChevronRight className='cursor-pointer w-24 h-32 hover:opacity-100 stroke-white stroke-1 scale-y-150' /></div>
-                                      {/* <div class="inbox_pos left" onClick={prev}></div>
-                                      <div class="inbox_pos right" onClick={next}></div> */}
+                                        <div onClick={prev}><ChevronLeft className='cursor-pointer w-24 h-32 hover:opacity-100 stroke-white stroke-1 scale-y-150' /></div>
+                                        <div onClick={next}><ChevronRight className='cursor-pointer w-24 h-32 hover:opacity-100 stroke-white stroke-1 scale-y-150' /></div>
                                     </div>
-     
                                 </>)}
 
                             </Dialog.Panel>
