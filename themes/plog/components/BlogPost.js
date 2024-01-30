@@ -35,7 +35,7 @@ const BlogPost = (props) => {
             key={post?.id} className='cursor-pointer relative'>
 
             <LazyImage src={pageThumbnail} className='aspect-[16/9] w-full h-full object-cover filter contrast-120' />
-
+            {/* 首页卡片标签 */}
             <h2 className="text-md absolute left-0 bottom-0 m-4 text-gray-100 shadow-text">
                 {post?.title}
             </h2>
